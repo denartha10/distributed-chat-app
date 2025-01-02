@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}DistributedChats{% endblock %}
+
+{% block content %}
+<div class="flex min-h-dvh bg-gray-100"  hx-ext="sse" sse-connect="/sse/app">
+	
+	<!-- TODO:RIGHT NOW MORPH DOM AND THIS REFRESH HANDLER WILL STOP SCROLLING FROM THE AUTOMATIC GET REQUEST. BUT I DON'T LIKE IT, FEELS JANKY -->
+	<!-- TODO: THIS APP REFRESHER FEELS EXTRA JANKY -->
+	<div  id="app-refresh-controller" 
+		hx-get="/channels/get/list"
+		hx-target="#channelnames"
+		hx-swap="outerHTML"
+		hx-trigger="sse:refresh"/>
+	</div>
+
+	<section id="channelnames" class="h-dvh bg-white shadow-xl {% if active_channel %} hidden md:block md:w-64 {% else %} w-full md:w-64 {% endif %}">
+		<div class="mb-8">
+		<a hx-boost="true" href="/channels/@me/friends" >
+			<div
+				class="flex items-center cursor-pointer p-2 rounded-md border-b border-gray-200 gap-2">
+				<div class="min-w-12 h-12 flex justify-center items-center rounded-full">
+					<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+				</div>
+				<div class="flex-1">
+					<h2 class="text-lg">New Chat</h2>
+				</div>
+			</div>
+		</a>
+		</div>
+		<div class="p-2 border-b border-gray-200">
+			Direct Messages
+		</div>
+		{% for channel in channels %}
+		<a hx-boost="true" href="/channels/@me/{{channel.channel_id}}">
+			<div
+				class="flex items-center cursor-pointer hover:bg-gray-100/10 p-2 border-b border-gray-200 gap-2">
+				<div class="min-w-12 h-12 bg-pink-100 rounded-full"></div>
+				<div class="flex-1">
+					<h2 class="text-lg">{{channel.channel_nickname}}</h2>
+					<!--TODO:FIX THE MESSAGE PREVIEW-->
+					<p class="text-gray-600">...</p>
+				</div>
+			</div>
+		</a>
+		{% endfor %}
+	</section>
+
+	{% if active_channel %}
+			<section class="max-h-dvh flex flex-col flex-1" id="channels">
+				<div class="md:hidden flex justify-start items-center p-3">
+					<a href="/" hx-boost="true">
+						<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"> <path d="m313-440 224 224-57 56-320-320 320-320 57 56-224 224h487v80H313Z" /> </svg>
+					</a>
+				</div>
+				<!-- Messages Section -->
+				<div class="flex-1 p-3 flex flex-col gap-2 overflow-y-auto no-scrollbar" id="messages"  sse-connect="/sse/{{active_channel.channel_id}}" sse-swap="messageadded" hx-swap="beforeend">
+
+					<!-- TODO:RIGHT NOW MORPH DOM AND THIS REFRESH HANDLER WILL STOP SCROLLING FROM THE AUTOMATIC GET REQUEST. BUT I DON'T LIKE IT, FEELS JANKY -->
+					<div  id="refresh-controller" hx-get="/channels/@me/{{active_channel.channel_id}}" hx-target="body" hx-swap="morph:innerHTML" hx-trigger="sse:messagedeleted, sse:messageedited"/></div>
+
+					{% for m in messages %} {% with receiver=user.username, message = m, chan = active_channel.channel_id %} {% include 'message.html' %} {% endwith %} {% endfor %}
+				</div>
+				<!-- Input Form -->
+				<div class="p-3">
+					<form class="flex gap-2" hx-on::after-request="this.reset(); document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight" hx-post="/channels/{{active_channel.channel_id}}/message" hx-swap="none" hx-validate="true">
+						<input required  minlength="2" class="flex-1 bg-white p-5 rounded-xl" name="message" type="text" placeholder="type your message here..." title="You need a message ..." />
+						<button type="submit" class="bg-sky-200 rounded-md p-5 hover:cursor-pointer">submit</button>
+					</form>
+				</div>
+			</section>
+	{% else %}
+			<section class="max-h-dvh hidden md:flex flex-col flex-1" id="channels">
+
+
+			</section>
+	{% endif %}
+			<div class="hidden lg:flex grow-0 shrink basis-[30%] border-l border-solid border-gray-200 p-3 justify-center items-center text-gray-400">
+				Channel Details Will Go Here
+			</div>
+
+</div>
+{% endblock %}

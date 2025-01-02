@@ -1,0 +1,53 @@
+{% if message.sender_id == receiver %}
+<div class="flex justify-end" id="message-{{message.message_id}}"
+	hx-confirm="Are you sure you wish to delete your message? If you do, it will be lost forever!">
+	<div
+		class="flex flex-col w-full max-w-72 md:max-w-xs leading-1.5 p-2 border-gray-200 bg-blue-300 rounded-s-xl rounded-br-xl">
+		<div class="flex items-center justify-between space-x-2 relative">
+			<div class="flex items-center justify-start space-x-2">
+				<span class="text-sm font-semibold text-gray-900">Me</span>
+				<span class="text-sm font-normal text-gray-500 dark:text-gray-400">{{message.sent_at |
+					iso_to_time}}</span>
+			</div>
+			<div class="relative" x-data="{ showDelete: false }">
+				<!-- Trigger SVG -->
+				<div class="items-center hover:bg-gray-100/20 rounded hover:cursor-pointer"
+					@click="showDelete = !showDelete" @click.outside='showDelete = false'>
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" width="1rem" height="1rem"
+						fill="#000000">
+						<path
+							d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z" />
+					</svg>
+				</div>
+
+				<!-- Delete Popup -->
+				<div class="absolute bg-white right-6 -top-2 p-1 shadow-lg rounded hidden"
+					:class="{'hidden': ! showDelete}">
+					<button
+						class="flex items-center gap-4 text-sm p-1 rounded text-red-400 fill-red-400 hover:bg-red-400 hover:text-white hover:fill-white"
+						hx-delete="/channels/{{chan}}/message/{{message.message_id}}" hx-swap="outerHTML"
+						hx-target="#message-{{message.message_id}}">
+						Delete
+						<svg xmlns="http://www.w3.org/2000/svg" height="1rem" viewBox="0 -960 960 960" width="1rem">
+							<path
+								d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z" />
+						</svg>
+					</button>
+				</div>
+			</div>
+		</div>
+		<p class="text-sm font-normal py-2.5 text-gray-900 dark:text-white">{{message.content}}</p>
+	</div>
+</div>
+{% else %}
+<div class="flex justify-start">
+	<div
+		class="flex flex-col w-full max-w-72 md:max-w-xs leading-1.5 p-2 border-gray-200 bg-green-200 rounded-e-xl rounded-es-xl">
+		<div class="flex items-center space-x-2 rtl:space-x-reverse">
+			<span class="text-sm font-semibold text-gray-900">{{message.sender_id}}</span>
+			<span class="text-sm font-normal text-gray-500 dark:text-gray-400">{{message.sent_at | iso_to_time}}</span>
+		</div>
+		<p class="text-sm font-normal py-2.5 text-gray-900 dark:text-white">{{message.content}}</p>
+	</div>
+</div>
+{% endif %}

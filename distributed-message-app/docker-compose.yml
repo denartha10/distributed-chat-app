@@ -1,0 +1,58 @@
+services:
+  app1:
+    build:
+      context: ./message-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      DATABASE_URL: "postgresql://user:password@db:5432/mydatabase"
+    depends_on:
+      - db
+      - rabbitmq
+
+  app2:
+    build:
+      context: ./message-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8080"
+    environment:
+      DATABASE_URL: "postgresql://user:password@db:5432/mydatabase"
+    depends_on:
+      - db
+      - rabbitmq
+
+  app3:
+    build:
+      context: ./message-service
+      dockerfile: Dockerfile
+    ports:
+      - "8083:8080"
+    environment:
+      DATABASE_URL: "postgresql://user:password@db:5432/mydatabase"
+    depends_on:
+      - db
+      - rabbitmq
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"     # RabbitMQ message broker port
+      - "15672:15672"   # management UI port
+
+volumes:
+  postgres_data:

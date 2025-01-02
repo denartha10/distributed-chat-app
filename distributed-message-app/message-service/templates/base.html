@@ -1,0 +1,54 @@
+<!-- base.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>
+		{% block title %}DistributedChats{% endblock %}
+	</title>
+	<script src="https://unpkg.com/htmx.org@2.0.4"
+		integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+		crossorigin="anonymous"></script>
+	<script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>
+	<script src="https://unpkg.com/idiomorph@0.3.0/dist/idiomorph-ext.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<script src="//unpkg.com/alpinejs" defer></script>
+	<link href="{{url_for('static', path='/css/styles.css')}}" rel="stylesheet" />
+	<script>
+		document.addEventListener("htmx:confirm", function(e) {
+			console.log(e)
+			// The event is triggered on every trigger for a request, so we need to check if the element
+			// that triggered the request has a hx-confirm attribute, if not we can return early and let
+			// the default behavior happen
+			if (!e.detail.target.hasAttribute('hx-confirm')){
+				console.log('returning')
+			return
+		} 
+
+		// This will prevent the request from being issued to later manually issue it
+		e.preventDefault()
+
+		Swal.fire({
+			title: "Delete Message",
+			showCancelButton: true,
+			confirmButtonColor: "#F87171",
+			confirmButtonText: "Yes, delete it!",
+			text: `${e.detail.question}`,
+		}).then(function(result) {
+			if (result.isConfirmed) {
+				// If the user confirms, we manually issue the request
+				e.detail.issueRequest(true); // true to skip the built-in window.confirm()
+			}
+		})
+		})
+	</script>
+</head>
+
+<body class="max-h-dvh" hx-ext="morph" >
+	{% block content %}{% endblock %}
+</body>
+
+</html>

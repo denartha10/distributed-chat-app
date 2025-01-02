@@ -1,0 +1,31 @@
+<section id="channelnames" class="h-dvh bg-white shadow-xl {% if active_channel %} hidden md:block md:w-64 {% else %} w-full md:w-64 {% endif %}">
+		<div class="mb-8">
+		<a hx-boost="true" href="/channels/@me/friends" >
+			<div
+				class="flex items-center cursor-pointer p-2 rounded-md border-b border-gray-200 gap-2">
+				<div class="min-w-12 h-12 flex justify-center items-center rounded-full">
+					<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+				</div>
+				<div class="flex-1">
+					<h2 class="text-lg">New Chat</h2>
+				</div>
+			</div>
+		</a>
+		</div>
+		<div class="p-2 border-b border-gray-200">
+			Direct Messages
+		</div>
+		{% for channel in channels %}
+		<a hx-boost="true" href="/channels/@me/{{channel.channel_id}}">
+			<div
+				class="flex items-center cursor-pointer hover:bg-gray-100/10 p-2 border-b border-gray-200 gap-2">
+				<div class="min-w-12 h-12 bg-pink-100 rounded-full"></div>
+				<div class="flex-1">
+					<h2 class="text-lg">{{channel.channel_nickname}}</h2>
+					<!--TODO:FIX THE MESSAGE PREVIEW-->
+					<p class="text-gray-600">...</p>
+				</div>
+			</div>
+		</a>
+		{% endfor %}
+</section>
